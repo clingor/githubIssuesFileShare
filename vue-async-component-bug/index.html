@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <title>Async Component Bug Example</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <style>
+      .inline-block {
+        display: inline-block;
+      }
+      .navbar {
+        margin-bottom: 0;
+      }
+
+      /* Vue Transitions */
+      .fade-enter-active,
+      .fade-leave-active {
+        transition: opacity 0.3s;
+      }
+      .fade-enter-active {
+        animation: zoom-in 0.3s;
+      }
+      .fade-leave-active {
+        animation: zoom-in 0.3s reverse;
+      }
+      .fade-enter,
+      .fade-leave-to {
+        opacity: 0;
+      }
+      @keyframes zoom-in {
+        0% {
+          transform: scale(0.99);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+
+    <!-- VueJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.4/vue.min.js"></script>
+    <script src="https://cdn.rawgit.com/simplesmiler/vue-clickaway/2.1.0/dist/vue-clickaway.min.js"></script>
+    <!-- https://github.com/FranckFreiburger/http-vue-loader -->
+    <script src="httpVueLoader.js"></script>
+    <script>
+      // load components
+      (function() {
+        Vue.component('component-a', httpVueLoader.load('component-a.vue', 'component-a'));
+        Vue.component('component-b', httpVueLoader.load('component-b.vue', 'component-b'));
+        Vue.component('component-c', httpVueLoader.load('component-c.vue', 'component-c'));
+      })();
+    </script>
+    <script>
+      // Main application
+      (function() {
+        $(document).ready(function() {
+          var modulesMenu = [
+            {label:'Component A', val:'component-a'},
+            {label:'Component B', val:'component-b'},
+            {label:'Component C', val:'component-c'}
+          ];
+
+          var app = new Vue({
+            el: '#appMain',
+            data: {
+              open: false,
+              selectedModule: modulesMenu[0],
+              modules: modulesMenu
+            },
+            mixins: [
+              VueClickaway.mixin
+            ],
+            methods: {
+              selectModule: function(value) {
+                this.selectedModule = value;
+                this.closeMenu();
+              },
+              closeMenu: function() {
+                this.open = false;
+              }
+            }
+          });
+        });
+      })();
+    </script>
+
+  </head>
+  <body>
+    <div id="appMain">
+      <header class="navbar navbar-default navbar-static-top navbar-inverse" role="navigation">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand">Async Component Bug Demo</a>
+          </div>
+          <div class="navbar-collapse collapse" id="main-navbar">
+            <ul class="nav navbar-nav" v-on-clickaway="closeMenu">
+              <li class="dropdown" :class="{'open':open}" id="modules-dropdown">
+                <a class="dropdown-toggle selected-module" href="#" role="button" @click="open = true">
+                  <i class="fa fa-wrench"></i> &nbsp;
+                  <div class="inline-block" :key="selectedModule">{{selectedModule.label}}</div>
+                  <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li v-for="module in modules">
+                    <a href="#" @click="selectModule(module)">
+                      <i v-bind:class="module.icon" v-if="module.icon"></i>
+                      {{module.label}}
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <transition name="fade" mode="out-in">
+        <keep-alive>
+          <component :is="selectedModule.val"></component>
+        </keep-alive>
+      </transition>
+    </div>
+  </body>
+</html>
