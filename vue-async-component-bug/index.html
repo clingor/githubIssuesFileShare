@@ -100,7 +100,7 @@
               <li class="dropdown" :class="{'open':open}" id="modules-dropdown">
                 <a class="dropdown-toggle selected-module" href="#" role="button" @click="open = true">
                   <i class="fa fa-wrench"></i> &nbsp;
-                  <div class="inline-block" :key="selectedModule">{{selectedModule.label}}</div>
+                  <div class="inline-block" :key="selectedModule.val">{{selectedModule.label}}</div>
                   <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
